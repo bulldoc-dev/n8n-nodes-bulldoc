@@ -1,6 +1,6 @@
 {
 	"name": "@bulldoc/n8n-nodes-bulldoc",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Official n8n nodes for Bulldoc.dev API integration",
 	"license": "MIT",
 	"homepage": "https://bulldoc.dev",
