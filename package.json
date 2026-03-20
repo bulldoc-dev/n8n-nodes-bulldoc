@@ -1,0 +1,56 @@
+{
+	"name": "@bulldoc/n8n-nodes-bulldoc",
+	"version": "0.1.0",
+	"description": "Official n8n nodes for Bulldoc.dev API integration",
+	"license": "MIT",
+	"homepage": "https://bulldoc.dev",
+	"keywords": [
+		"n8n-community-node-package",
+		"n8n-nodes",
+		"n8n",
+		"bulldoc",
+		"bulldoc-node",
+		"bulldoc-nodes"
+	],
+	"author": {
+		"name": "Bulldoc.dev",
+		"email": "integration@bulldoc.dev"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/bulldoc-dev/n8n-nodes-bulldoc.git"
+	},
+	"scripts": {
+		"build": "n8n-node build",
+		"build:watch": "tsc --watch",
+		"dev": "n8n-node dev",
+		"lint": "n8n-node lint",
+		"lint:fix": "n8n-node lint --fix",
+		"release": "release-it",
+		"prepublishOnly": "n8n-node prerelease"
+	},
+	"files": [
+		"dist"
+	],
+	"n8n": {
+		"n8nNodesApiVersion": 1,
+		"strict": true,
+		"credentials": [
+			"dist/credentials/BulldocApi.credentials.js"
+		],
+		"nodes": [
+			"dist/nodes/Bulldoc/Bulldoc.node.js"
+		]
+	},
+	"devDependencies": {
+		"@n8n/node-cli": "*",
+		"@release-it/conventional-changelog": "^10.0.6",
+		"eslint": "9.32.0",
+		"prettier": "^3.6.2",
+		"release-it": "^19.0.4",
+		"typescript": "^5.9.2"
+	},
+	"peerDependencies": {
+		"n8n-workflow": "*"
+	}
+}
