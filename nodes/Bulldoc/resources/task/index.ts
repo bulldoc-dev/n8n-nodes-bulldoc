@@ -23,7 +23,7 @@ export const taskDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '=/tasks/{{$parameter.taskId}}',
+						url: '=/v1/tasks/{{$parameter.taskId}}',
 					},
 				},
 			},
@@ -34,7 +34,7 @@ export const taskDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'GET',
-						url: '/tasks',
+						url: '/v1/tasks',
 					},
 					output: {
 						postReceive: [

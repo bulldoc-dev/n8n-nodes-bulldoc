@@ -26,7 +26,7 @@ export const pdfDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '/pdf/generate',
+						url: '/v1/pdf/generate',
 					},
 				},
 			},
@@ -38,7 +38,7 @@ export const pdfDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '/pdf/fillout',
+						url: '/v1/pdf/fillout',
 					},
 				},
 			},
@@ -50,7 +50,7 @@ export const pdfDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						method: 'POST',
-						url: '/pdf/merge',
+						url: '/v1/pdf/merge',
 						headers: {
 							'Content-Type': 'multipart/form-data',
 						},
