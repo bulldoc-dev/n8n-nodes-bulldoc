@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.4](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/compare/v0.1.3...v0.1.4) (2026-03-26)
+
+### Features
+
+* add base url configuration in credentials ([89e3b4c](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/commit/89e3b4cd0fc4c9270a5cbbc3ea7459348f7f1410))
+
+### Bug Fixes
+
+* fix form data field ([7697eab](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/commit/7697eab203584ea29c43770b40395f17d7f22a5a))
+* fix operation urls ([da9d7f0](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/commit/da9d7f0bcae129f6cdd7d051e108d684e96867b9))
+
 ## [0.1.3](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/compare/v0.1.2...v0.1.3) (2026-03-20)
 
 ### Bug Fixes
