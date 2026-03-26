@@ -19,7 +19,7 @@ export class Bulldoc implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'bulldocApi', required: true }],
 		requestDefaults: {
-			baseURL: 'https://api.bulldoc.dev/v1/',
+			baseURL: '={{$credentials.baseUrl}}',
 		},
 		properties: [
 			{

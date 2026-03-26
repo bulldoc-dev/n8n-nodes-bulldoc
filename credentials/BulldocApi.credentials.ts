@@ -24,6 +24,13 @@ export class BulldocApi implements ICredentialType {
 			required: true,
 			default: '',
 		},
+		{
+			displayName: 'Base URL',
+			name: 'baseUrl',
+			type: 'string',
+			required: true,
+			default: 'https://api.bulldoc.dev/',
+		},
 	];
 
 	authenticate: IAuthenticateGeneric = {
@@ -37,7 +44,7 @@ export class BulldocApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: 'https://api.bulldoc.dev/',
+			baseURL: '={{$credentials.baseUrl}}',
 			url: '/v1/tasks',
 		},
 	};
