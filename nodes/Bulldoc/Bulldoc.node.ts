@@ -20,6 +20,9 @@ export class Bulldoc implements INodeType {
 		credentials: [{ name: 'bulldocApi', required: true }],
 		requestDefaults: {
 			baseURL: '={{$credentials.baseUrl}}',
+			headers: {
+				'Content-Type': 'application/json',
+			},
 		},
 		properties: [
 			{

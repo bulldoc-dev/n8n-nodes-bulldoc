@@ -1,4 +1,4 @@
-import type { INodeProperties } from 'n8n-workflow';
+import type { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
 
 const showOnlyForPdfFillout = {
 	operation: ['fillout'],
@@ -55,8 +55,16 @@ export const pdfFilloutDescription: INodeProperties[] = [
 		default: '{}',
 		routing: {
 			send: {
-				type: 'body',
-				property: 'data',
+				preSend: [
+					async function (this: IExecuteSingleFunctions, requestOptions: IHttpRequestOptions) {
+						const data = JSON.parse(this.getNodeParameter('data')?.toString() || '{}');
+						requestOptions.body = {
+							...(typeof requestOptions.body === 'object' ? requestOptions.body : {}),
+							data,
+						};
+						return requestOptions;
+					},
+				],
 			},
 		},
 		description: 'The values for the form fields',
