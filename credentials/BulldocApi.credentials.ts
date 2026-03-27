@@ -12,8 +12,8 @@ export class BulldocApi implements ICredentialType {
 	displayName = 'Bulldoc.dev API';
 	icon = 'file:../nodes/Bulldoc/bulldoc.svg' as Icon;
 
-	// Link to your community node's README
-	documentationUrl = 'https://github.com/org/-bulldoc?tab=readme-ov-file#credentials';
+	documentationUrl =
+		'https://github.com/bulldoc-dev/n8n-nodes-bulldoc?tab=readme-ov-file#credentials';
 
 	properties: INodeProperties[] = [
 		{
