@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.5](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/compare/v0.1.4...v0.1.5) (2026-04-05)
+
+### Bug Fixes
+
+* fix the documentation url ([621ae24](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/commit/621ae24ef89bd4919481e1f73f46e2f8cf64f9b2))
+
 ## [0.1.4](https://github.com/bulldoc-dev/n8n-nodes-bulldoc/compare/v0.1.3...v0.1.4) (2026-03-26)
 
 ### Features
