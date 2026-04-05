@@ -1,11 +1,11 @@
 import type { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
 
-const showOnlyForPdfFillout = {
-	operation: ['fillout'],
+const showOnlyForPdfFill = {
+	operation: ['fill'],
 	resource: ['pdf'],
 };
 
-export const pdfFilloutDescription: INodeProperties[] = [
+export const pdfFillDescription: INodeProperties[] = [
 	{
 		displayName: 'Form',
 		name: 'formId',
@@ -15,7 +15,7 @@ export const pdfFilloutDescription: INodeProperties[] = [
 		description: 'The form to fill in',
 		displayOptions: {
 			show: {
-				...showOnlyForPdfFillout,
+				...showOnlyForPdfFill,
 			},
 		},
 		routing: {
@@ -49,7 +49,7 @@ export const pdfFilloutDescription: INodeProperties[] = [
 		required: true,
 		displayOptions: {
 			show: {
-				...showOnlyForPdfFillout,
+				...showOnlyForPdfFill,
 			},
 		},
 		default: '{}',

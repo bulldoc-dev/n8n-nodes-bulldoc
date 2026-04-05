@@ -1,7 +1,7 @@
 import type { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
 
-import { pdfGenerateDescription } from './generate';
-import { pdfFilloutDescription } from './fillout';
+import { pdfFromTemplateDescription } from './fromTemplate';
+import { pdfFillDescription } from './fill';
 import { pdfMergeDescription } from './merge';
 
 const showOnlyForPdf = {
@@ -19,26 +19,26 @@ export const pdfDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Generate PDF',
-				value: 'generate',
-				action: 'Generate PDF',
-				description: 'Generate PDF from a template',
+				name: 'Generate PDF From Template',
+				value: 'from-template',
+				action: 'Generate PDF from a template',
+				description: 'Generate PDF from a HTML template',
 				routing: {
 					request: {
 						method: 'POST',
-						url: '/v1/pdf/generate',
+						url: '/v1/pdf/from/template',
 					},
 				},
 			},
 			{
-				name: 'Fillout Form',
-				value: 'fillout',
+				name: 'Fill Out Form',
+				value: 'fill',
 				action: 'Fill out a form',
-				description: 'Fill out a form',
+				description: 'Fill out a PDF form',
 				routing: {
 					request: {
 						method: 'POST',
-						url: '/v1/pdf/fillout',
+						url: '/v1/pdf/fill',
 					},
 				},
 			},
@@ -97,11 +97,11 @@ export const pdfDescription: INodeProperties[] = [
 				},
 			},
 		],
-		default: 'generate',
+		default: 'from-template',
 	},
 
-	...pdfGenerateDescription,
-	...pdfFilloutDescription,
+	...pdfFromTemplateDescription,
+	...pdfFillDescription,
 	...pdfMergeDescription,
 
 	{

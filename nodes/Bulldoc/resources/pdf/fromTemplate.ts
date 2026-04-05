@@ -1,21 +1,21 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForPdfGenerate = {
-	operation: ['generate'],
+const showOnlyForPdfFromTemplate = {
+	operation: ['from-template'],
 	resource: ['pdf'],
 };
 
-export const pdfGenerateDescription: INodeProperties[] = [
+export const pdfFromTemplateDescription: INodeProperties[] = [
 	{
 		displayName: 'Template',
 		name: 'templateId',
 		type: 'resourceLocator',
 		default: { mode: 'id', value: '' },
 		required: true,
-		description: 'The tempate to generate from',
+		description: 'The template to generate from',
 		displayOptions: {
 			show: {
-				...showOnlyForPdfGenerate,
+				...showOnlyForPdfFromTemplate,
 			},
 		},
 		routing: {
@@ -48,7 +48,7 @@ export const pdfGenerateDescription: INodeProperties[] = [
 		type: 'json',
 		displayOptions: {
 			show: {
-				...showOnlyForPdfGenerate,
+				...showOnlyForPdfFromTemplate,
 			},
 		},
 		default: '{}',
