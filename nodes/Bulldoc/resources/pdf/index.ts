@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import type { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
 import { appendFiles2FormData, appendObj2FormData } from '../../utils';
 
