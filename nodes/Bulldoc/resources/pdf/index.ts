@@ -1,8 +1,13 @@
+/* eslint-disable no-console */
 import type { IExecuteSingleFunctions, IHttpRequestOptions, INodeProperties } from 'n8n-workflow';
+import { appendFiles2FormData, appendObj2FormData } from '../../utils';
 
 import { pdfFromTemplateDescription } from './fromTemplate';
 import { pdfFillDescription } from './fill';
 import { pdfMergeDescription } from './merge';
+import { pdfMetaDescription } from './meta';
+import { pdfEncryptDescription } from './encrypt';
+import { pdfDecryptDescription } from './decrypt';
 
 const showOnlyForPdf = {
 	resource: ['pdf'],
@@ -30,6 +35,7 @@ export const pdfDescription: INodeProperties[] = [
 					},
 				},
 			},
+
 			{
 				name: 'Fill Out Form',
 				value: 'fill',
@@ -42,6 +48,7 @@ export const pdfDescription: INodeProperties[] = [
 					},
 				},
 			},
+
 			{
 				name: 'Merge PDFs',
 				value: 'merge',
@@ -59,37 +66,130 @@ export const pdfDescription: INodeProperties[] = [
 					send: {
 						preSend: [
 							async function (this: IExecuteSingleFunctions, requestOptions: IHttpRequestOptions) {
-								const binary = this.getInputData().binary;
-								if (!binary) throw new Error('No binary files provided');
-
 								const data = new FormData();
+								const numFiles = await appendFiles2FormData(this, data, 'files', 10, 0);
+								appendObj2FormData(requestOptions.body as Record<string, unknown>, data);
 
-								for (const k of Object.getOwnPropertyNames(binary)) {
-									const stream = await this.helpers.getBinaryStream(binary[k].id!);
-									const response = new Response(stream, {
-										headers: { 'Content-Type': binary[k].mimeType },
-									});
-									data.append('files', await response.blob(), binary[k].fileName);
+								const documentIds = (
+									this.getNodeParameter('documentIds.documents', []) as Array<{
+										documentId: { value: string };
+									}>
+								).map((doc) => doc.documentId.value);
+								if (documentIds.length) {
+									for (const docId of documentIds) {
+										data.append('documentIds', docId);
+									}
 								}
 
-								if (data.getAll('files').length < 2)
-									throw new Error('Merge requires at least two files as input');
-
-								const appendObj = (o: Record<string, unknown>, prefix: string = '') => {
-									for (const k of Object.getOwnPropertyNames(o)) {
-										const kk = prefix ? `${prefix}[${k}]` : k;
-										if (typeof o[k] == 'object' && o[k] != null)
-											appendObj(o[k] as Record<string, unknown>, kk);
-										else data.append(kk, o[k]);
-									}
-								};
-								const b = (
-									typeof requestOptions.body === 'object' ? requestOptions.body : {}
-								) as Record<string, unknown>;
-								appendObj(b);
+								if (documentIds.length > 10)
+									throw new Error('Not more than 10 document IDs is allowed');
+								if (numFiles + documentIds.length < 2)
+									throw new Error('At least two files/document IDs are required to merge');
 
 								requestOptions.body = data;
+								return requestOptions;
+							},
+						],
+					},
+				},
+			},
 
+			{
+				name: 'Edit PDF Metadata',
+				value: 'meta',
+				action: 'Edit PDF metadata',
+				description: 'Set title, author and other metadata',
+				routing: {
+					request: {
+						method: 'PATCH',
+						url: '/v1/pdf/meta',
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+						arrayFormat: 'repeat',
+					},
+					send: {
+						preSend: [
+							async function (this: IExecuteSingleFunctions, requestOptions: IHttpRequestOptions) {
+								const data = new FormData();
+								const useBinary = this.getNodeParameter('binary', false);
+
+								if (useBinary) await appendFiles2FormData(this, data, 'file', 1, 1);
+								appendObj2FormData(requestOptions.body as Record<string, unknown>, data);
+
+								const kws = this.getNodeParameter('metadata.keywords', '')
+									?.toString()
+									.split(',')
+									.map((kw) => kw.trim());
+								if (kws) {
+									for (const kw of kws) {
+										data.append('keywords', kw);
+									}
+								}
+
+								requestOptions.body = data;
+								return requestOptions;
+							},
+						],
+					},
+				},
+			},
+
+			{
+				name: 'Encrypt PDF',
+				value: 'encrypt',
+				action: 'Encrypt PDF',
+				description: 'Set password and permissions',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '/v1/pdf/encrypt',
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+						arrayFormat: 'repeat',
+					},
+					send: {
+						preSend: [
+							async function (this: IExecuteSingleFunctions, requestOptions: IHttpRequestOptions) {
+								const data = new FormData();
+								const useBinary = this.getNodeParameter('binary', false);
+
+								if (useBinary) await appendFiles2FormData(this, data, 'file', 1, 1);
+								appendObj2FormData(requestOptions.body as Record<string, unknown>, data);
+
+								requestOptions.body = data;
+								return requestOptions;
+							},
+						],
+					},
+				},
+			},
+
+			{
+				name: 'Decrypt PDF',
+				value: 'decrypt',
+				action: 'Decrypt PDF',
+				description: 'Decrypt a PDF using a password',
+				routing: {
+					request: {
+						method: 'POST',
+						url: '/v1/pdf/decrypt',
+						headers: {
+							'Content-Type': 'multipart/form-data',
+						},
+						arrayFormat: 'repeat',
+					},
+					send: {
+						preSend: [
+							async function (this: IExecuteSingleFunctions, requestOptions: IHttpRequestOptions) {
+								const data = new FormData();
+								const useBinary = this.getNodeParameter('binary', false);
+
+								if (useBinary) await appendFiles2FormData(this, data, 'file', 1, 1);
+								appendObj2FormData(requestOptions.body as Record<string, unknown>, data);
+
+								requestOptions.body = data;
 								return requestOptions;
 							},
 						],
@@ -103,6 +203,9 @@ export const pdfDescription: INodeProperties[] = [
 	...pdfFromTemplateDescription,
 	...pdfFillDescription,
 	...pdfMergeDescription,
+	...pdfMetaDescription,
+	...pdfEncryptDescription,
+	...pdfDecryptDescription,
 
 	{
 		displayName: 'Task Description',
@@ -138,210 +241,5 @@ export const pdfDescription: INodeProperties[] = [
 		},
 		description:
 			'Whether to wait for the task to complete and return the files. If false, the node will return immediately with the task ID, and you can use a separate node or a webhook to check for task completion and retrieve the files.',
-	},
-
-	{
-		displayName: 'PDF Metadata',
-		name: 'metadata',
-		type: 'collection',
-		displayOptions: {
-			show: {
-				...showOnlyForPdf,
-			},
-		},
-		placeholder: 'Add Metadata',
-		default: {},
-		options: [
-			{
-				displayName: 'Title',
-				name: 'title',
-				type: 'string',
-				default: '',
-				routing: {
-					send: {
-						type: 'body',
-						property: 'meta.title',
-						propertyInDotNotation: true,
-					},
-				},
-			},
-			{
-				displayName: 'Author',
-				name: 'author',
-				type: 'string',
-				default: '',
-				routing: {
-					send: {
-						type: 'body',
-						property: 'meta.author',
-						propertyInDotNotation: true,
-					},
-				},
-			},
-		],
-	},
-
-	{
-		displayName: 'PDF Security',
-		name: 'security',
-		type: 'fixedCollection',
-		displayOptions: {
-			show: showOnlyForPdf,
-		},
-		placeholder: 'Add Option',
-		default: {},
-		options: [
-			{
-				displayName: 'Permissions',
-				name: '_permissions',
-				// eslint-disable-next-line n8n-nodes-base/node-param-fixed-collection-type-unsorted-items
-				values: [
-					{
-						displayName: 'Annotating',
-						name: 'annotating',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description: 'Permission to add or modify text annotations',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.annotating',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Content Accessibility',
-						name: 'contentAccessibility',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description:
-							'Extract text and graphics (in support of accessibility to users with disabilities or for other purposes)',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.contentAccessibility',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Copying',
-						name: 'copying',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description: 'Copy or otherwise extract text and graphics from document',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.copying',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Document Assembly',
-						name: 'documentAssembly',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description:
-							'Assemble the document (insert, rotate or delete pages and create bookmarks or thumbnail images)',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.documentAssembly',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Filling Forms',
-						name: 'fillingForms',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description: 'Fill in existing interactive form fields',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.fillingForms',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Modifying',
-						name: 'modifying',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description: 'Modify content permission',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.modifying',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Printing',
-						name: 'printing',
-						type: 'boolean',
-						default: false,
-						// eslint-disable-next-line n8n-nodes-base/node-param-description-boolean-without-whether
-						description: 'Printing Permission',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.permissions.printing',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-					{
-						displayName: 'Owner Password',
-						description: 'Password that provides unlimited access to the encrypted document',
-						name: 'ownerPassword',
-						type: 'string',
-						required: true,
-						typeOptions: { password: true },
-						default: '',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.ownerPassword',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-				],
-			},
-			{
-				displayName: 'User Password',
-				name: '_userPassword',
-				values: [
-					{
-						displayName: 'User Password',
-						description: 'Password that restricts reader according to the defined permissions',
-						name: 'userPassword',
-						type: 'string',
-						typeOptions: { password: true },
-						default: '',
-						routing: {
-							send: {
-								type: 'body',
-								property: 'security.userPassword',
-								propertyInDotNotation: true,
-							},
-						},
-					},
-				],
-			},
-		],
 	},
 ];
